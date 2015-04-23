@@ -1,0 +1,32 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+</head>
+<body>
+    <div>
+        Password     : @ViewBag.password <br />
+        Hash         : @ViewBag.Hash<br />
+        Restored hash: @ViewBag.NewHash
+        @if (((string)@ViewBag.Hash).Equals((string)@ViewBag.NewHash))
+        {
+            @:Correct!
+        }
+        else
+        {
+            @: :-)
+        }
+
+        Reset password
+    </div>
+</body>
+</html>
+
+
+
