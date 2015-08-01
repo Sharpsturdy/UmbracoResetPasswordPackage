@@ -27,18 +27,17 @@ namespace UmbracoResetPasswordPackage.App_Plugins.AndriyPlugin
 
     public ResetToken CreateToken(int aUserID)
     {
-      if (aUserID == 0) return null;
-      string     randomToken = Path.GetRandomFileName().Replace(".", "");
-      ResetToken token       = new ResetToken { UserID = aUserID, HashedToken = randomToken };
+      string randomToken = Path.GetRandomFileName().Replace(".", "");
+      ResetToken token = new ResetToken { UserID = aUserID, HashedToken = randomToken };
       try
       {
         if (IsTokenExist(aUserID))
         {
-          _db.Update("UserResetTokens", "UserID", token);
+          _db.Execute("UPDATE UserResetTokens SET Token=@0 WHERE UserID=@1", randomToken, aUserID);
         }
         else
         {
-          _db.Insert("UserResetTokens", "UserID", token);
+          _db.Insert("UserResetTokens", "ID", token);
         }
       }
       catch (Exception)
@@ -49,7 +48,7 @@ namespace UmbracoResetPasswordPackage.App_Plugins.AndriyPlugin
     }
     public bool IsTokenCorrect(int aUserID, string aToken)
     {
-      if (aUserID == 0 || string.IsNullOrEmpty(aToken))
+      if (string.IsNullOrEmpty(aToken))
       {
         return false;
       }
@@ -96,7 +95,7 @@ namespace UmbracoResetPasswordPackage.App_Plugins.AndriyPlugin
     {
       try
       {
-        _db.Delete<ResetToken>(aUserID);
+        _db.Execute("DELETE FROM UserResetTokens WHERE UserID=@0", aUserID );
       }
       catch (Exception)
       {

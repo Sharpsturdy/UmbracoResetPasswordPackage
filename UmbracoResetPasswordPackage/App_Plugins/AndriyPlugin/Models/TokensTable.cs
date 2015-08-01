@@ -12,9 +12,13 @@ namespace UmbracoResetPasswordPackage.App_Plugins.AndriyPlugin.Models
   [PrimaryKey("UserID")]
   public class ResetToken
   {
+    [Column("ID")]
+    [PrimaryKeyColumn(Name = "PK_ID")]
+    public int ID { get;set;}
+
     [Column("UserID")]
-    [PrimaryKeyColumn(Name = "PK_UserID")]
     public int UserID { get; set; }
+    
     [Column("Token")]
     [NullSetting(NullSetting=NullSettings.NotNull)]
     public string HashedToken { get; set; }

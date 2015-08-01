@@ -52,8 +52,17 @@ namespace UmbracoResetPasswordPackage.App_Plugins.AndriyPlugin
       ResetTokensStore store = new ResetTokensStore();
       ResetToken token = store.CreateToken(user.Id);
       store.Dispose();
-      string url = Url.Action("ResetPassword", new { id = token.UserID, token = token.HashedToken });
-      await SendEmailAsync(url, user.Email);
+      string relativeUrl = Url.Action("ResetPassword", new { id = token.UserID, token = token.HashedToken });
+      string url = "http://" + Request.Url.Host + (Request.Url.Port == 80 ? null : ":" + Request.Url.Port.ToString()) + relativeUrl;
+      try
+      {
+        await SendEmailAsync(url, user.Email, user.Username);
+      }
+      catch (Exception)
+      {
+        ModelState.AddModelError("", "Error occuried during sending message via email.");
+        return View(model);
+      }
       return View("EmailSent");
     }
 
@@ -104,7 +113,7 @@ namespace UmbracoResetPasswordPackage.App_Plugins.AndriyPlugin
       return View("PasswordUpdated");
     }
 
-    async Task SendEmailAsync(string aRecoverUrl, string email)
+    async Task SendEmailAsync(string aRecoverUrl, string email, string aLogin)
     {
       // Plug in your email service here to send an email.
       SmtpClient smtpClient = new SmtpClient();
@@ -112,7 +121,7 @@ namespace UmbracoResetPasswordPackage.App_Plugins.AndriyPlugin
       MailMessage mail = new MailMessage();
       mail.IsBodyHtml = true;
       mail.Subject = "Password recovery link";
-      mail.Body = "To recover password <a href='" + aRecoverUrl + "'>click here</a>";
+      mail.Body = "Your login: " + aLogin + "<br/> To recover password <a href='" + aRecoverUrl + "'>click here</a>";
       mail.From = new MailAddress("no-replay@sag.no", "Umbraco");
       mail.To.Add(new MailAddress(email));
       await smtpClient.SendMailAsync(mail);
